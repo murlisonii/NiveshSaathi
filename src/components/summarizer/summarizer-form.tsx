@@ -15,12 +15,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export function SummarizerForm() {
   const [text, setText] = useState('');
   const [language, setLanguage] = useState('Hindi');
-  const [runFlow, running, , result, error] = useFlowState(translateAndSummarize);
+  const [run, {loading, result, error}] = useFlowState(translateAndSummarize);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text) return;
-    await runFlow({ text, language });
+    await run({ text, language });
   };
 
   const languages = ["Hindi", "Tamil", "Bengali", "Marathi", "Telugu", "Gujarati"];
@@ -55,8 +55,8 @@ export function SummarizerForm() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="self-end w-full sm:w-auto" disabled={running || !text}>
-                {running ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+              <Button type="submit" className="self-end w-full sm:w-auto" disabled={loading || !text}>
+                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                 Generate
               </Button>
             </div>

@@ -19,15 +19,15 @@ interface Message {
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [runFlow, running, , output] = useFlowState(aiChatbotForInvestorQueries);
+  const [run, {loading, result}] = useFlowState(aiChatbotForInvestorQueries);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (output) {
-      const botMessage: Message = { sender: 'bot', text: output.response };
+    if (result) {
+      const botMessage: Message = { sender: 'bot', text: result.response };
       setMessages(prev => [...prev, botMessage]);
     }
-  }, [output]);
+  }, [result]);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
@@ -36,7 +36,7 @@ export function ChatInterface() {
     setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
     setInput('');
-    await runFlow({ query: currentInput });
+    await run({ query: currentInput });
   };
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function ChatInterface() {
             viewport.scrollTop = viewport.scrollHeight;
         }
     }
-  }, [messages, running]);
+  }, [messages, loading]);
 
   return (
     <div className="flex flex-col h-full">
@@ -69,7 +69,7 @@ export function ChatInterface() {
               )}
             </div>
           ))}
-          {running && (
+          {loading && (
              <div className="flex items-start gap-4">
                  <Avatar className="w-8 h-8">
                   <AvatarFallback><Bot /></AvatarFallback>
@@ -87,11 +87,11 @@ export function ChatInterface() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !running && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && !loading && handleSend()}
               placeholder="Ask a question in your local language..."
-              disabled={running}
+              disabled={loading}
             />
-            <Button onClick={handleSend} disabled={running || input.trim() === ''} size="icon">
+            <Button onClick={handleSend} disabled={loading || input.trim() === ''} size="icon">
               <Send className="w-4 h-4" />
             </Button>
           </div>
