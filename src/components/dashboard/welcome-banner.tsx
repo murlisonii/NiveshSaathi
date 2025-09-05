@@ -23,7 +23,7 @@ export function WelcomeBanner() {
              <Image
               src="https://picsum.photos/600/400"
               alt="Financial growth illustration"
-              data-ai-hint="stock investment"
+              data-ai-hint="investment graph"
               fill
               className="object-cover"
             />
