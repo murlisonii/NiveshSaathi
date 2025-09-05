@@ -19,14 +19,14 @@ export function LearningProgress() {
       case 'completed':
         return <CheckCircle2 className="w-5 h-5 text-green-500" />;
       case 'inprogress':
-        return <PlayCircle className="w-5 h-5 text-accent" />;
+        return <PlayCircle className="w-5 h-5 text-blue-500" />;
       default:
         return <Circle className="w-5 h-5 text-muted-foreground" />;
     }
   };
 
   return (
-    <Card className="h-full bg-white/50 dark:bg-black/50 shadow-md border-transparent">
+    <Card className="h-full shadow-md">
       <CardHeader>
         <CardTitle>Your Learning Path</CardTitle>
         <CardDescription>Continue your journey to becoming a savvy investor.</CardDescription>
@@ -54,7 +54,7 @@ export function LearningProgress() {
                     {getStatusIcon(module.status)}
                     <span className="font-medium">{module.name}</span>
                   </div>
-                  {module.status === 'inprogress' && <span className="text-xs font-semibold text-accent">CONTINUE</span>}
+                  {module.status === 'inprogress' && <span className="text-xs font-semibold text-blue-500">CONTINUE</span>}
                 </div>
               </Link>
             ))}

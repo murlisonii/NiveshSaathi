@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${ptSans.variable} font-sans`}>
       <head />
-      <body className="dark">
+      <body>
         <SidebarProvider>
           <Sidebar>
             <AppSidebar />

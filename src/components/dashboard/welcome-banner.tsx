@@ -5,11 +5,11 @@ import Link from "next/link";
 
 export function WelcomeBanner() {
   return (
-    <Card className="overflow-hidden bg-gradient-to-r from-primary/20 to-background text-foreground shadow-lg border-border">
+    <Card className="overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100 text-foreground shadow-lg">
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row">
           <div className="p-6 md:p-8 space-y-4 md:w-1/2 flex flex-col justify-center">
-            <h2 className="text-2xl md:text-3xl font-bold">Welcome to Nivesh Saathi!</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Welcome to Nivesh Saathi!</h2>
             <p className="text-muted-foreground">
               Your journey to financial literacy starts here. Explore interactive modules, test your knowledge, and practice trading in a risk-free environment.
             </p>

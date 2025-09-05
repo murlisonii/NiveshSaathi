@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ function PortfolioOverviewContent() {
   const isPositive = dayChange > 0;
 
   return (
-    <Card className="h-full bg-card/80 shadow-md border-border">
+    <Card className="h-full shadow-md">
       <CardHeader>
         <CardTitle>Virtual Portfolio</CardTitle>
         <CardDescription>A snapshot of your simulated investments.</CardDescription>

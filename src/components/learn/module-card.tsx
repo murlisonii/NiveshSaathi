@@ -19,7 +19,7 @@ export function ModuleCard({ module }: ModuleCardProps) {
 
   return (
     <Link href={`/learn/${slug}`} passHref>
-      <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white/50 dark:bg-black/50 border-transparent">
+      <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card border">
         <CardHeader>
           <div className="flex justify-between items-start">
             <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
