@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from 'react';
@@ -8,52 +9,128 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, User, Bot, Loader2, Volume2, Mic } from 'lucide-react';
+import { Send, User, Bot, Loader2, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AIChatbotForInvestorQueriesOutput } from '@/ai/flows/ai-chatbot-for-investor-queries';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   sender: 'user' | 'bot';
   text: string;
 }
 
+// Add SpeechRecognition to the window object
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
+
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [isListening, setIsListening] = useState(false);
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recognitionRef = useRef<any | null>(null);
+  const { toast } = useToast();
 
-  const handleSend = async () => {
-    if (input.trim() === '') return;
+  const handleSend = async (query: string) => {
+    if (query.trim() === '') return;
 
-    const userMessage: Message = { sender: 'user', text: input };
+    const userMessage: Message = { sender: 'user', text: query };
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
-    setInput('');
-
+    
     startTransition(async () => {
       // Get text response
-      const result: AIChatbotForInvestorQueriesOutput = await aiChatbotForInvestorQueries({ query: currentInput });
-      
-      if (result && result.response) {
-        const botMessage: Message = { sender: 'bot', text: result.response };
-        setMessages(prev => [...prev, botMessage]);
+      try {
+        const result: AIChatbotForInvestorQueriesOutput = await aiChatbotForInvestorQueries({ query });
+        
+        if (result && result.response) {
+          const botMessage: Message = { sender: 'bot', text: result.response };
+          setMessages(prev => [...prev, botMessage]);
 
-        // Get audio response
-        try {
-          const ttsResult = await textToSpeech({ text: result.response });
-          if (ttsResult && ttsResult.audioDataUri) {
-            if (audioRef.current) {
-              audioRef.current.src = ttsResult.audioDataUri;
-              audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+          // Get audio response
+          try {
+            const ttsResult = await textToSpeech({ text: result.response });
+            if (ttsResult && ttsResult.audioDataUri) {
+              if (audioRef.current) {
+                audioRef.current.src = ttsResult.audioDataUri;
+                audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+              }
             }
+          } catch (e) {
+              console.error("Could not generate audio for the response:", e);
           }
-        } catch (e) {
-            console.error("Could not generate audio for the response:", e);
         }
+      } catch (e) {
+        setMessages(prev => [...prev, {sender: 'bot', text: "Sorry, I encountered an error. Please try again."}]);
       }
     });
+  };
+
+  const handleMicClick = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast({
+        title: "Feature Not Supported",
+        description: "Your browser does not support Speech Recognition.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = false;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'en-US'; // Or detect user's language
+
+    recognitionRef.current.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognitionRef.current.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current.onerror = (event: any) => {
+      console.error('Speech recognition error', event.error);
+      if (event.error === 'not-allowed') {
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please allow microphone access in your browser settings.",
+          variant: "destructive",
+        });
+      }
+      setIsListening(false);
+    };
+
+    recognitionRef.current.onresult = (event: any) => {
+      const transcript = Array.from(event.results)
+        .map((result: any) => result[0])
+        .map((result) => result.transcript)
+        .join('');
+      
+      setInput(transcript);
+
+      if (event.results[0].isFinal) {
+        if(transcript.trim()) {
+           handleSend(transcript);
+        }
+        setInput('');
+      }
+    };
+
+    recognitionRef.current.start();
   };
 
   useEffect(() => {
@@ -64,6 +141,14 @@ export function ChatInterface() {
         }
     }
   }, [messages, isPending]);
+  
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      handleSend(input);
+      setInput('');
+    }
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -102,22 +187,21 @@ export function ChatInterface() {
       </ScrollArea>
       <div className="p-4 bg-background border-t">
         <div className="container mx-auto max-w-3xl">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" disabled>
-                <Mic className="w-4 h-4" />
-                <span className="sr-only">Use Microphone (coming soon)</span>
+          <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
+            <Button type="button" variant="outline" size="icon" onClick={handleMicClick} disabled={isPending}>
+                {isListening ? <MicOff className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
+                <span className="sr-only">Use Microphone</span>
             </Button>
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !isPending && handleSend()}
-              placeholder="Ask a question in your local language..."
+              placeholder={isListening ? "Listening..." : "Ask a question in your local language..."}
               disabled={isPending}
             />
-            <Button onClick={handleSend} disabled={isPending || input.trim() === ''} size="icon">
+            <Button type="submit" disabled={isPending || input.trim() === ''} size="icon">
               <Send className="w-4 h-4" />
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
