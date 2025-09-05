@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useFlowState } from "@genkit-ai/next/files/react";
 import { translateAndSummarize } from '@/ai/flows/translate-and-summarize-financial-texts';
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
