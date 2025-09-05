@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, BarChart, TrendingUp, Leaf } from 'lucide-react';
+import { usePortfolioStore } from '@/hooks/use-portfolio-store';
 
 const quizQuestions = [
   {
@@ -51,18 +52,21 @@ const personas = {
     icon: Leaf,
     description: "You prioritize capital protection over high returns. You are best suited for low-risk investments like bonds, fixed deposits, and large-cap mutual funds.",
     color: "text-green-600",
+    riskScore: 35
   },
   moderate: {
     title: "Moderate Investor",
     icon: BarChart,
     description: "You seek a balance between risk and return. A diversified portfolio of equities, mutual funds, and some debt instruments would be a good fit for you.",
     color: "text-yellow-600",
+    riskScore: 68
   },
   aggressive: {
     title: "Aggressive Investor",
     icon: TrendingUp,
     description: "You are comfortable with high risk for the potential of high returns. You might explore small-cap stocks, derivatives, and advanced trading strategies.",
     color: "text-red-600",
+    riskScore: 85
   },
 }
 
@@ -71,6 +75,7 @@ export function RiskProfileQuiz() {
   const [answers, setAnswers] = useState<number[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [persona, setPersona] = useState<keyof typeof personas | null>(null);
+  const setRiskScore = usePortfolioStore((state) => state.setRiskScore);
 
   const progress = Math.round(((step) / quizQuestions.length) * 100);
 
@@ -90,14 +95,17 @@ export function RiskProfileQuiz() {
   const calculatePersona = (finalAnswers: number[]) => {
     const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
     const avgScore = totalScore / finalAnswers.length;
+    let newPersona: keyof typeof personas;
 
     if (avgScore <= 1.5) {
-      setPersona('conservative');
+      newPersona = 'conservative';
     } else if (avgScore > 1.5 && avgScore <= 2.5) {
-      setPersona('moderate');
+      newPersona = 'moderate';
     } else {
-      setPersona('aggressive');
+      newPersona = 'aggressive';
     }
+    setPersona(newPersona);
+    setRiskScore(personas[newPersona].riskScore);
   }
 
   const handleRestart = () => {

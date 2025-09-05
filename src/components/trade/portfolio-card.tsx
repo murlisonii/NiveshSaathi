@@ -1,46 +1,26 @@
+
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import type { PortfolioItem } from "@/lib/types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-
-const initialPortfolio: PortfolioItem[] = [
-  {
-    stock: { symbol: "RELIANCE", name: "Reliance Industries", price: 2850.75, change: 0, changePercent: 0 },
-    shares: 2,
-    avgPrice: 2800.00,
-  },
-  {
-    stock: { symbol: "HDFCBANK", name: "HDFC Bank Ltd.", price: 1650.00, change: 0, changePercent: 0 },
-    shares: 4,
-    avgPrice: 1600.00,
-  },
-];
+import { usePortfolioStore } from '@/hooks/use-portfolio-store';
 
 const COLORS = ["#3F51B5", "#7E57C2", "#5C6BC0", "#9575CD", "#7986CB"];
 
 export function PortfolioCard() {
-  const [portfolio] = useState(initialPortfolio);
+  const { portfolio, totalValue, totalInvestment, dayChange, pnl, riskScore, virtualBalance } = usePortfolioStore((state) => ({
+    portfolio: state.portfolio,
+    totalValue: state.totalValue,
+    totalInvestment: state.totalInvestment,
+    dayChange: state.dayChange,
+    pnl: state.pnl,
+    riskScore: state.riskScore,
+    virtualBalance: state.virtualBalance
+  }));
 
-  const { totalValue, totalInvestment, dayChange, pnl, riskScore } = useMemo(() => {
-    let totalValue = 0;
-    let totalInvestment = 0;
-    
-    portfolio.forEach(item => {
-      totalValue += item.stock.price * item.shares;
-      totalInvestment += item.avgPrice * item.shares;
-    });
-
-    // Mock calculations
-    const dayChange = (totalValue * 0.0101); // Mock 1.01% change
-    const pnl = totalValue - totalInvestment;
-    const riskScore = 68; 
-
-    return { totalValue, totalInvestment, dayChange, pnl, riskScore };
-  }, [portfolio]);
 
   const chartData = portfolio.map(item => ({
     name: item.stock.symbol,
@@ -51,7 +31,7 @@ export function PortfolioCard() {
     <Card className="bg-white/50 dark:bg-black/50 border-transparent shadow-md">
       <CardHeader>
         <CardTitle>My Portfolio</CardTitle>
-        <CardDescription>Virtual Balance: Rs 10,00,000.00</CardDescription>
+        <CardDescription>Virtual Balance: Rs {virtualBalance.toFixed(2)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="h-40">

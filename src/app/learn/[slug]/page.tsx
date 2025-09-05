@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import type { QuizQuestion } from "@/lib/types";
+import { generateQuizForFinancialTopic } from "@/ai/flows/generate-quiz-for-financial-topic";
 import { BookOpen, BrainCircuit, BarChart, ShieldCheck } from 'lucide-react';
 
 const modulesData: { [key: string]: any } = {
@@ -17,14 +18,6 @@ const modulesData: { [key: string]: any } = {
       src: "https://picsum.photos/800/400",
       hint: "stock market charts"
     },
-    quiz: [
-      {
-        question: "What does 'stock' represent?",
-        options: ["A loan to a company", "Ownership in a company", "A government bond", "A type of currency"],
-        correctAnswer: "Ownership in a company",
-        scenario: "You buy one stock of 'Reliance Industries'."
-      }
-    ]
   },
   'risk-assessment': {
     title: 'Risk Assessment Techniques',
@@ -35,14 +28,6 @@ const modulesData: { [key: string]: any } = {
       src: "https://picsum.photos/800/400",
       hint: "risk balance"
     },
-    quiz: [
-      {
-        question: "What would you do if a stock you own drops 10%?",
-        options: ["Sell immediately", "Buy more (average down)", "Hold and wait", "Re-evaluate the company's fundamentals"],
-        correctAnswer: "Re-evaluate the company's fundamentals",
-        scenario: "Your portfolio is down for the day."
-      }
-    ]
   },
   'portfolio-diversification': {
     title: 'Portfolio Diversification',
@@ -53,14 +38,6 @@ const modulesData: { [key: string]: any } = {
       src: "https://picsum.photos/800/400",
       hint: "diverse assets"
     },
-    quiz: [
-      {
-        question: "Which portfolio is the most diversified?",
-        options: ["100% in Tech stocks", "50% Tech, 50% Banking stocks", "Stocks, Bonds, and Gold", "Only Indian stocks"],
-        correctAnswer: "Stocks, Bonds, and Gold",
-        scenario: "You have ₹1,00,000 to invest."
-      }
-    ]
   },
    'algo-trading': {
     title: 'Intro to Algorithmic Trading',
@@ -71,13 +48,6 @@ const modulesData: { [key: string]: any } = {
       src: "https://picsum.photos/800/400",
       hint: "data network"
     },
-    quiz: [
-      {
-        question: "What is the primary advantage of algorithmic trading?",
-        options: ["Emotion-free decision making", "High-speed execution", "Ability to backtest strategies", "All of the above"],
-        correctAnswer: "All of the above",
-      }
-    ]
   },
 };
 
@@ -88,7 +58,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function ModulePage({ params }: { params: { slug: string } }) {
+export default async function ModulePage({ params }: { params: { slug: string } }) {
   const module = modulesData[params.slug];
 
   if (!module) {
@@ -101,6 +71,12 @@ export default function ModulePage({ params }: { params: { slug: string } }) {
       </div>
     );
   }
+
+  const quizData = await generateQuizForFinancialTopic({
+    topicTitle: module.title,
+    topicContent: module.content,
+  });
+  const quizQuestions = quizData.questions;
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -137,7 +113,7 @@ export default function ModulePage({ params }: { params: { slug: string } }) {
             <CardTitle>Test Your Knowledge</CardTitle>
           </CardHeader>
           <CardContent>
-            <Quiz questions={module.quiz as QuizQuestion[]} />
+            <Quiz questions={quizQuestions as QuizQuestion[]} />
           </CardContent>
         </Card>
       </article>

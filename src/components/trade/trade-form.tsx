@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,14 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { usePortfolioStore, mockStocks } from '@/hooks/use-portfolio-store';
 
 export function TradeForm() {
   const { toast } = useToast();
+  const { buyStock, sellStock } = usePortfolioStore();
   const [symbol, setSymbol] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [activeTab, setActiveTab] = useState('buy');
 
   const handleTrade = (type: 'Buy' | 'Sell') => {
-    if (!symbol || !quantity || parseInt(quantity) <= 0) {
+    const stockSymbol = symbol.toUpperCase();
+    const tradeQuantity = parseInt(quantity);
+
+    if (!stockSymbol || !tradeQuantity || tradeQuantity <= 0) {
       toast({
         title: "Invalid Input",
         description: "Please enter a valid stock symbol and quantity.",
@@ -22,14 +29,36 @@ export function TradeForm() {
       });
       return;
     }
-    
-    // Mock trade execution
-    console.log(`${type} ${quantity} of ${symbol.toUpperCase()}`);
 
-    toast({
-      title: "Order Placed!",
-      description: `Your order to ${type.toLowerCase()} ${quantity} shares of ${symbol.toUpperCase()} has been submitted.`,
-    });
+    const stock = mockStocks.find(s => s.symbol === stockSymbol);
+
+    if (!stock) {
+      toast({
+        title: "Invalid Stock Symbol",
+        description: `Stock with symbol ${stockSymbol} not found.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (type === 'Buy') {
+        buyStock(stock, tradeQuantity);
+      } else {
+        sellStock(stock, tradeQuantity);
+      }
+
+      toast({
+        title: "Order Placed!",
+        description: `Your order to ${type.toLowerCase()} ${quantity} shares of ${stockSymbol} has been submitted.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Order Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
 
     setSymbol('');
     setQuantity('');
@@ -42,7 +71,7 @@ export function TradeForm() {
         <CardTitle>Place Order</CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="buy" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="buy">Buy</TabsTrigger>
             <TabsTrigger value="sell">Sell</TabsTrigger>
