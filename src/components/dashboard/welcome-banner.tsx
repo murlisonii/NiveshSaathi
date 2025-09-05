@@ -14,7 +14,7 @@ export function WelcomeBanner() {
               Your journey to financial literacy starts here. Explore interactive modules, test your knowledge, and practice trading in a risk-free environment.
             </p>
             <div>
-              <Link href="/learn" passHref>
+              <Link href="/learn">
                 <Button variant="secondary">Start Learning</Button>
               </Link>
             </div>
@@ -22,7 +22,7 @@ export function WelcomeBanner() {
           <div className="relative md:w-1/2 h-48 md:h-auto">
              <Image
               src="https://picsum.photos/600/400"
-              alt="Financial growth illustration"
+              alt="Stock market graph"
               data-ai-hint="stock market"
               fill
               className="object-cover"
