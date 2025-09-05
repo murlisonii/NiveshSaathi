@@ -24,11 +24,11 @@ export function PortfolioOverview() {
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">Total Value</p>
             <p className="text-4xl font-bold tracking-tight">
-              {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(portfolio.totalValue)}
+              ₨{portfolio.totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <div className={`flex items-center justify-center gap-1 font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-              <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(portfolio.dayChange)} ({portfolio.dayChangePercent.toFixed(2)}%) Today</span>
+              <span>₨{portfolio.dayChange.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({portfolio.dayChangePercent.toFixed(2)}%) Today</span>
             </div>
           </div>
           <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
