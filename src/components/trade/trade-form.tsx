@@ -8,11 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { usePortfolioStore, mockStocks } from '@/hooks/use-portfolio-store';
+import { usePortfolioStore } from '@/hooks/use-portfolio-store';
 
 export function TradeForm() {
   const { toast } = useToast();
-  const { buyStock, sellStock } = usePortfolioStore();
+  const { buyStock, sellStock, stocks } = usePortfolioStore((state) => ({
+    buyStock: state.buyStock,
+    sellStock: state.sellStock,
+    stocks: state.stocks,
+  }));
   const [symbol, setSymbol] = useState('');
   const [quantity, setQuantity] = useState('');
   const [activeTab, setActiveTab] = useState('buy');
@@ -30,7 +34,7 @@ export function TradeForm() {
       return;
     }
 
-    const stock = mockStocks.find(s => s.symbol === stockSymbol);
+    const stock = stocks.find(s => s.symbol === stockSymbol);
 
     if (!stock) {
       toast({
@@ -66,7 +70,7 @@ export function TradeForm() {
 
 
   return (
-    <Card className="bg-white/50 dark:bg-black/50 border-transparent shadow-md">
+    <Card className="shadow-md">
       <CardHeader>
         <CardTitle>Place Order</CardTitle>
       </CardHeader>

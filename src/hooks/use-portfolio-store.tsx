@@ -1,9 +1,10 @@
+
 "use client";
 import { createContext, useRef, useContext } from 'react';
 import { createStore, useStore } from 'zustand';
 import type { Stock, PortfolioItem } from '@/lib/types';
 
-export const mockStocks: Stock[] = [
+const initialStocks: Stock[] = [
   { symbol: "RELIANCE", name: "Reliance Industries", price: 2850.75, change: 30.25, changePercent: 1.07 },
   { symbol: "TCS", name: "Tata Consultancy Services", price: 3805.10, change: -15.40, changePercent: -0.40 },
   { symbol: "HDFCBANK", name: "HDFC Bank Ltd.", price: 1650.00, change: 12.80, changePercent: 0.78 },
@@ -13,6 +14,7 @@ export const mockStocks: Stock[] = [
 ];
 
 interface PortfolioState {
+  stocks: Stock[];
   portfolio: PortfolioItem[];
   virtualBalance: number;
   totalValue: number;
@@ -24,17 +26,23 @@ interface PortfolioState {
   buyStock: (stock: Stock, shares: number) => void;
   sellStock: (stock: Stock, shares: number) => void;
   setRiskScore: (score: number) => void;
+  updateStockPrices: () => void;
 }
 
-const calculatePortfolioMetrics = (portfolio: PortfolioItem[]) => {
+const calculatePortfolioMetrics = (portfolio: PortfolioItem[], stocks: Stock[]) => {
   let totalValue = 0;
   let totalInvestment = 0;
   let dayChange = 0;
 
+  const stockMap = new Map(stocks.map(s => [s.symbol, s]));
+
   portfolio.forEach(item => {
-    totalValue += item.stock.price * item.shares;
-    totalInvestment += item.avgPrice * item.shares;
-    dayChange += item.stock.change * item.shares;
+    const currentStock = stockMap.get(item.stock.symbol);
+    if (currentStock) {
+      totalValue += currentStock.price * item.shares;
+      totalInvestment += item.avgPrice * item.shares;
+      dayChange += currentStock.change * item.shares;
+    }
   });
 
   const pnl = totalValue - totalInvestment;
@@ -44,79 +52,109 @@ const calculatePortfolioMetrics = (portfolio: PortfolioItem[]) => {
 };
 
 const createPortfolioStore = () =>
-  createStore<PortfolioState>((set, get) => ({
-    portfolio: [
+  createStore<PortfolioState>((set, get) => {
+    const initialPortfolio: PortfolioItem[] = [
         {
-            stock: mockStocks.find(s => s.symbol === 'RELIANCE')!,
+            stock: initialStocks.find(s => s.symbol === 'RELIANCE')!,
             shares: 2,
             avgPrice: 2800.00,
         },
         {
-            stock: mockStocks.find(s => s.symbol === 'HDFCBANK')!,
+            stock: initialStocks.find(s => s.symbol === 'HDFCBANK')!,
             shares: 4,
             avgPrice: 1600.00,
         },
-    ],
-    virtualBalance: 1000000,
-    riskScore: 68,
-    ...calculatePortfolioMetrics([
-        { stock: mockStocks.find(s => s.symbol === 'RELIANCE')!, shares: 2, avgPrice: 2800.00 },
-        { stock: mockStocks.find(s => s.symbol === 'HDFCBANK')!, shares: 4, avgPrice: 1600.00 },
-    ]),
-    buyStock: (stock, shares) => {
-        const cost = stock.price * shares;
-        if (get().virtualBalance < cost) {
-            throw new Error("Insufficient funds to complete this transaction.");
-        }
+    ];
 
-        const newPortfolio = [...get().portfolio];
-        const existingItemIndex = newPortfolio.findIndex(item => item.stock.symbol === stock.symbol);
+    return {
+      stocks: initialStocks,
+      portfolio: initialPortfolio,
+      virtualBalance: 1000000,
+      riskScore: 68,
+      ...calculatePortfolioMetrics(initialPortfolio, initialStocks),
+      buyStock: (stockToBuy, shares) => {
+          const cost = stockToBuy.price * shares;
+          if (get().virtualBalance < cost) {
+              throw new Error("Insufficient funds to complete this transaction.");
+          }
 
-        if (existingItemIndex > -1) {
-            const existingItem = newPortfolio[existingItemIndex];
-            const totalShares = existingItem.shares + shares;
-            const newAvgPrice = ((existingItem.avgPrice * existingItem.shares) + (stock.price * shares)) / totalShares;
-            newPortfolio[existingItemIndex] = { ...existingItem, shares: totalShares, avgPrice: newAvgPrice };
-        } else {
-            newPortfolio.push({ stock, shares, avgPrice: stock.price });
-        }
-        
-        set(state => ({
-            portfolio: newPortfolio,
-            virtualBalance: state.virtualBalance - cost,
-            ...calculatePortfolioMetrics(newPortfolio)
-        }));
-    },
-    sellStock: (stock, shares) => {
-        const newPortfolio = [...get().portfolio];
-        const existingItemIndex = newPortfolio.findIndex(item => item.stock.symbol === stock.symbol);
-        
-        if (existingItemIndex === -1) {
-            throw new Error("You do not own this stock.");
-        }
-        
-        const existingItem = newPortfolio[existingItemIndex];
+          const newPortfolio = [...get().portfolio];
+          const existingItemIndex = newPortfolio.findIndex(item => item.stock.symbol === stockToBuy.symbol);
 
-        if (existingItem.shares < shares) {
-            throw new Error(`You only own ${existingItem.shares} shares.`);
-        }
+          if (existingItemIndex > -1) {
+              const existingItem = newPortfolio[existingItemIndex];
+              const totalShares = existingItem.shares + shares;
+              const newAvgPrice = ((existingItem.avgPrice * existingItem.shares) + (stockToBuy.price * shares)) / totalShares;
+              newPortfolio[existingItemIndex] = { ...existingItem, shares: totalShares, avgPrice: newAvgPrice };
+          } else {
+              newPortfolio.push({ stock: stockToBuy, shares, avgPrice: stockToBuy.price });
+          }
+          
+          set(state => {
+            const metrics = calculatePortfolioMetrics(newPortfolio, state.stocks);
+            return {
+              portfolio: newPortfolio,
+              virtualBalance: state.virtualBalance - cost,
+              ...metrics
+            };
+          });
+      },
+      sellStock: (stockToSell, shares) => {
+          const newPortfolio = [...get().portfolio];
+          const existingItemIndex = newPortfolio.findIndex(item => item.stock.symbol === stockToSell.symbol);
+          
+          if (existingItemIndex === -1) {
+              throw new Error("You do not own this stock.");
+          }
+          
+          const existingItem = newPortfolio[existingItemIndex];
 
-        const income = stock.price * shares;
+          if (existingItem.shares < shares) {
+              throw new Error(`You only own ${existingItem.shares} shares.`);
+          }
 
-        if (existingItem.shares === shares) {
-            newPortfolio.splice(existingItemIndex, 1);
-        } else {
-            newPortfolio[existingItemIndex] = { ...existingItem, shares: existingItem.shares - shares };
-        }
-        
-        set(state => ({
-            portfolio: newPortfolio,
-            virtualBalance: state.virtualBalance + income,
-            ...calculatePortfolioMetrics(newPortfolio)
-        }));
-    },
-    setRiskScore: (score: number) => set({ riskScore: score }),
-}));
+          const income = stockToSell.price * shares;
+
+          if (existingItem.shares === shares) {
+              newPortfolio.splice(existingItemIndex, 1);
+          } else {
+              newPortfolio[existingItemIndex] = { ...existingItem, shares: existingItem.shares - shares };
+          }
+          
+          set(state => {
+            const metrics = calculatePortfolioMetrics(newPortfolio, state.stocks);
+            return {
+              portfolio: newPortfolio,
+              virtualBalance: state.virtualBalance + income,
+              ...metrics
+            };
+          });
+      },
+      setRiskScore: (score: number) => set({ riskScore: score }),
+      updateStockPrices: () => {
+        const { stocks, portfolio } = get();
+        const newStocks = stocks.map(stock => {
+          const changeFactor = (Math.random() - 0.5) * 0.05; // Max 5% change
+          const oldPrice = stock.price;
+          const newPrice = oldPrice * (1 + changeFactor);
+          const change = newPrice - oldPrice;
+          const changePercent = (change / oldPrice) * 100;
+          return { ...stock, price: newPrice, change, changePercent };
+        });
+
+        const newPortfolio = portfolio.map(item => {
+          const updatedStock = newStocks.find(s => s.symbol === item.stock.symbol);
+          return updatedStock ? { ...item, stock: updatedStock } : item;
+        })
+
+        set({
+          stocks: newStocks,
+          portfolio: newPortfolio,
+          ...calculatePortfolioMetrics(newPortfolio, newStocks)
+        });
+      }
+    };
+  });
 
 const PortfolioContext = createContext<ReturnType<typeof createPortfolioStore> | null>(null);
 
