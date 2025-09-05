@@ -16,7 +16,7 @@ function PortfolioOverviewContent() {
   const isPositive = dayChange > 0;
 
   return (
-    <Card className="h-full bg-white/50 dark:bg-black/50 shadow-md border-transparent">
+    <Card className="h-full bg-card/80 shadow-md border-border">
       <CardHeader>
         <CardTitle>Virtual Portfolio</CardTitle>
         <CardDescription>A snapshot of your simulated investments.</CardDescription>
@@ -28,7 +28,7 @@ function PortfolioOverviewContent() {
             <p className="text-4xl font-bold tracking-tight">
               Rs {totalValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            <div className={`flex items-center justify-center gap-1 font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`flex items-center justify-center gap-1 font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
               {isPositive ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
               <span>Rs {dayChange.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({dayChangePercent.toFixed(2)}%) Today</span>
             </div>
@@ -38,7 +38,7 @@ function PortfolioOverviewContent() {
               <p className="text-sm font-medium">Risk Score</p>
               <p className="text-xs text-muted-foreground">Moderately High</p>
             </div>
-            <p className="text-2xl font-bold text-accent">{riskScore}</p>
+            <p className="text-2xl font-bold text-primary">{riskScore}</p>
           </div>
           <Link href="/trade" passHref>
             <Button className="w-full">Go to Trading Arena</Button>
