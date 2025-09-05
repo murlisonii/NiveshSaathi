@@ -23,7 +23,7 @@ export function StockTable() {
   return (
     <Card className="shadow-md">
       <CardHeader>
-        <CardTitle>Market Watch (15-min delayed)</CardTitle>
+        <CardTitle>Market Watch</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
