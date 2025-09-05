@@ -7,3 +7,4 @@ import '@/ai/flows/translate-and-summarize-financial-texts.ts';
 import '@/ai/flows/generate-quiz-for-financial-topic.ts';
 import '@/ai/flows/get-personalized-suggestions.ts';
 import '@/ai/flows/analyze-document.ts';
+import '@/ai/flows/text-to-speech.ts';
