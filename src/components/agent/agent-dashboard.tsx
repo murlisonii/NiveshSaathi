@@ -31,6 +31,7 @@ export function AgentDashboard() {
 
   const handleFetchSuggestions = () => {
     setError(null);
+    setResult(null);
     startTransition(async () => {
       try {
         const stockMap = new Map(stocks.map(s => [s.symbol, s]));
@@ -51,11 +52,12 @@ export function AgentDashboard() {
       }
     });
   };
-
+  
   useEffect(() => {
-    // Fetch suggestions on initial component load
-    handleFetchSuggestions();
-  }, []);
+    if(portfolio.length > 0) {
+      handleFetchSuggestions();
+    }
+  }, [riskScore]);
 
   return (
     <div className="space-y-8">
