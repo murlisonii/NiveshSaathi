@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useFlowState } from "@genkit-ai/next/files/react";
+import { useState, useRef, useEffect, useTransition } from 'react';
 import { aiChatbotForInvestorQueries } from '@/ai/flows/ai-chatbot-for-investor-queries';
 
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, User, Bot, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { AIChatbotForInvestorQueriesOutput } from '@/ai/flows/ai-chatbot-for-investor-queries';
 
 interface Message {
   sender: 'user' | 'bot';
@@ -19,15 +19,8 @@ interface Message {
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [run, {loading, result}] = useFlowState(aiChatbotForInvestorQueries);
+  const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (result) {
-      const botMessage: Message = { sender: 'bot', text: result.response };
-      setMessages(prev => [...prev, botMessage]);
-    }
-  }, [result]);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
@@ -36,7 +29,14 @@ export function ChatInterface() {
     setMessages(prev => [...prev, userMessage]);
     const currentInput = input;
     setInput('');
-    await run({ query: currentInput });
+
+    startTransition(async () => {
+      const result: AIChatbotForInvestorQueriesOutput = await aiChatbotForInvestorQueries({ query: currentInput });
+      if (result) {
+        const botMessage: Message = { sender: 'bot', text: result.response };
+        setMessages(prev => [...prev, botMessage]);
+      }
+    });
   };
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function ChatInterface() {
             viewport.scrollTop = viewport.scrollHeight;
         }
     }
-  }, [messages, loading]);
+  }, [messages, isPending]);
 
   return (
     <div className="flex flex-col h-full">
@@ -69,7 +69,7 @@ export function ChatInterface() {
               )}
             </div>
           ))}
-          {loading && (
+          {isPending && (
              <div className="flex items-start gap-4">
                  <Avatar className="w-8 h-8">
                   <AvatarFallback><Bot /></AvatarFallback>
@@ -87,11 +87,11 @@ export function ChatInterface() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !loading && handleSend()}
+              onKeyDown={(e) => e.key === 'Enter' && !isPending && handleSend()}
               placeholder="Ask a question in your local language..."
-              disabled={loading}
+              disabled={isPending}
             />
-            <Button onClick={handleSend} disabled={loading || input.trim() === ''} size="icon">
+            <Button onClick={handleSend} disabled={isPending || input.trim() === ''} size="icon">
               <Send className="w-4 h-4" />
             </Button>
           </div>
