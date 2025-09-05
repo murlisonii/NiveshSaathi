@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFlowState } from "@genkit-ai/next/react";
+import { useFlowState } from "@genkit-ai/next/files/react";
 import { translateAndSummarize } from '@/ai/flows/translate-and-summarize-financial-texts';
 
 import { Card, CardContent } from "@/components/ui/card";

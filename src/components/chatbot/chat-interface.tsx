@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { useFlowState } from "@genkit-ai/next/react";
+import { useFlowState } from "@genkit-ai/next/files/react";
 import { aiChatbotForInvestorQueries } from '@/ai/flows/ai-chatbot-for-investor-queries';
 
 import { Input } from "@/components/ui/input";
