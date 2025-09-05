@@ -22,8 +22,8 @@ export function WelcomeBanner() {
           <div className="relative md:w-1/2 h-48 md:h-auto">
              <Image
               src="https://picsum.photos/600/400"
-              alt="Stock market graph"
-              data-ai-hint="stock market"
+              alt="Financial graph"
+              data-ai-hint="financial graph"
               fill
               className="object-cover"
             />
