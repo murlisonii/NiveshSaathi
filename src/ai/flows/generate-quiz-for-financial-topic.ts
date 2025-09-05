@@ -17,13 +17,13 @@ const QuizQuestionSchema = z.object({
   scenario: z.string().optional().describe('An optional real-world scenario to provide context for the question.'),
 });
 
-export const GenerateQuizForFinancialTopicInputSchema = z.object({
+const GenerateQuizForFinancialTopicInputSchema = z.object({
   topicTitle: z.string().describe('The title of the financial topic.'),
   topicContent: z.string().describe('The educational content for the financial topic.'),
 });
 export type GenerateQuizForFinancialTopicInput = z.infer<typeof GenerateQuizForFinancialTopicInputSchema>;
 
-export const GenerateQuizForFinancialTopicOutputSchema = z.object({
+const GenerateQuizForFinancialTopicOutputSchema = z.object({
   questions: z.array(QuizQuestionSchema).length(1).describe('A list of generated quiz questions.'),
 });
 export type GenerateQuizForFinancialTopicOutput = z.infer<typeof GenerateQuizForFinancialTopicOutputSchema>;
