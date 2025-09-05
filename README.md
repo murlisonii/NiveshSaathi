@@ -1,6 +1,7 @@
 # Nivesh Saathi - Your AI Investment Companion
 
 Nivesh Saathi is a comprehensive, AI-powered web application designed to empower users with the tools and knowledge needed for smart investing. Built with Next.js, Firebase, and Google's Generative AI (Genkit), this platform offers a simulated trading environment, personalized financial advice, and interactive learning modules.
+Please Create .env add Gemini Api Key as mentioned below.
 
 ## ✨ Features
 
