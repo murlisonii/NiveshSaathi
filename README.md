@@ -39,8 +39,7 @@ Follow these instructions to set up and run the project locally.
 The AI features in this application are powered by Google's Gemini models. You will need an API key to use them.
 
 1.  Create a new file named `.env` in the root of the project.
-2.  Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-3.  Add the key to your `.env` file like this:
+2.  Add the key to your `.env` file like this:
 
     ```env
     GEMINI_API_KEY=your_api_key_here
