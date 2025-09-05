@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   Languages,
   Menu,
+  ShieldCheck,
 } from "lucide-react";
 import {
   SidebarContent,
@@ -20,11 +21,13 @@ import {
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Slot } from "@radix-ui/react-slot"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/learn", label: "Learn", icon: BookOpen },
   { href: "/trade", label: "Trade", icon: CandlestickChart },
+  { href: "/risk-profile", label: "Risk Profile", icon: ShieldCheck },
   { href: "/summarizer", label: "Summarizer", icon: Languages },
   { href: "/chatbot", label: "Chatbot", icon: Bot },
 ];
