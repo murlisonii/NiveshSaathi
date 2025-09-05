@@ -30,7 +30,7 @@ export function StockTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Symbol</TableHead>
-              <TableHead>Price (₹)</TableHead>
+              <TableHead>Price (Rs)</TableHead>
               <TableHead>Change</TableHead>
             </TableRow>
           </TableHeader>
