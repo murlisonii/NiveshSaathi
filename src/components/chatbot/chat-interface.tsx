@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, User, Bot, Loader2, Mic, MicOff } from 'lucide-react';
+import { Send, User, Bot, Loader2, Mic, MicOff, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AIChatbotForInvestorQueriesOutput } from '@/ai/flows/ai-chatbot-for-investor-queries';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -69,6 +70,13 @@ export function ChatInterface() {
         setMessages(prev => [...prev, {sender: 'bot', text: "Sorry, I encountered an error. Please try again."}]);
       }
     });
+  };
+  
+  const handleStopAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   };
 
   const handleMicClick = () => {
@@ -152,7 +160,13 @@ export function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
-      <audio ref={audioRef} className="hidden" />
+      <audio 
+        ref={audioRef} 
+        className="hidden"
+        onPlay={() => setIsSpeaking(true)}
+        onEnded={() => setIsSpeaking(false)}
+        onPause={() => setIsSpeaking(false)}
+       />
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="container mx-auto max-w-3xl space-y-6">
           {messages.map((msg, index) => (
@@ -188,17 +202,24 @@ export function ChatInterface() {
       <div className="p-4 bg-background border-t">
         <div className="container mx-auto max-w-3xl">
           <form onSubmit={handleFormSubmit} className="flex items-center gap-2">
-            <Button type="button" variant="outline" size="icon" onClick={handleMicClick} disabled={isPending}>
-                {isListening ? <MicOff className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
-                <span className="sr-only">Use Microphone</span>
-            </Button>
+            {!isSpeaking ? (
+                <Button type="button" variant="outline" size="icon" onClick={handleMicClick} disabled={isPending}>
+                    {isListening ? <MicOff className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
+                    <span className="sr-only">Use Microphone</span>
+                </Button>
+            ) : (
+                <Button type="button" variant="destructive" size="icon" onClick={handleStopAudio}>
+                    <Square className="w-4 h-4" />
+                    <span className="sr-only">Stop Speaking</span>
+                </Button>
+            )}
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isListening ? "Listening..." : "Ask a question in your local language..."}
-              disabled={isPending}
+              disabled={isPending || isSpeaking}
             />
-            <Button type="submit" disabled={isPending || input.trim() === ''} size="icon">
+            <Button type="submit" disabled={isPending || input.trim() === '' || isSpeaking} size="icon">
               <Send className="w-4 h-4" />
             </Button>
           </form>
