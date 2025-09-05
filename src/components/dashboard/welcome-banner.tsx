@@ -21,7 +21,7 @@ export function WelcomeBanner() {
           </div>
           <div className="relative md:w-1/2 h-48 md:h-auto">
              <Image
-              src="https://picsum.photos/600/400"
+              src="https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxncmFwaHxlbnwwfHx8fDE3NTcwNzcyMjh8MA&ixlib=rb-4.1.0&q=80&w=1080"
               alt="Financial graph"
               data-ai-hint="financial graph"
               fill
