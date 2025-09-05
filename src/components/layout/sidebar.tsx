@@ -9,6 +9,7 @@ import {
   Languages,
   Menu,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import {
   SidebarContent,
@@ -29,6 +30,7 @@ const navItems = [
   { href: "/risk-profile", label: "Risk Profile", icon: ShieldCheck },
   { href: "/summarizer", label: "Summarizer", icon: Languages },
   { href: "/chatbot", label: "Chatbot", icon: Bot },
+  { href: "/agent", label: "Personalized Agent", icon: Sparkles },
 ];
 
 export default function AppSidebar() {
@@ -66,7 +68,7 @@ export default function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <Link href={item.href} passHref>
+              <Link href={item.href}>
                 <SidebarMenuButton
                   as="a"
                   isActive={pathname === item.href}
