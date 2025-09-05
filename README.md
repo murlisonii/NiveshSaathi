@@ -25,22 +25,53 @@ Nivesh Saathi is a comprehensive, AI-powered web application designed to empower
 *   **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
 *   **Icons**: [Lucide React](https://lucide.dev/)
 
-## Getting Started
+## 🛠️ Getting Started
 
-This project is set up to run in a development environment like Firebase Studio.
+Follow these instructions to set up and run the project locally.
 
-1.  **Start the development server**:
+### Prerequisites
+
+*   [Node.js](https://nodejs.org/) (version 18 or higher)
+*   [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+### 1. Set Up Environment Variables
+
+The AI features in this application are powered by Google's Gemini models. You will need an API key to use them.
+
+1.  Create a new file named `.env` in the root of the project.
+2.  Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+3.  Add the key to your `.env` file like this:
+
+    ```env
+    GEMINI_API_KEY=your_api_key_here
+    ```
+
+### 2. Install Dependencies
+
+Install the necessary packages for the project.
+
+```bash
+npm install
+```
+
+### 3. Run the Development Servers
+
+You need to run two separate processes for the application to work correctly:
+
+1.  **Start the Next.js development server**:
+    This runs the main web application.
     ```bash
     npm run dev
     ```
 
 2.  **Start the Genkit development service**:
-    In a separate terminal, run the following command to enable the AI features.
+    In a separate terminal, run this command to enable the AI features.
     ```bash
     npm run genkit:watch
     ```
 
-3.  **Open the application**:
-    Open [http://localhost:9002](http://localhost:9002) in your browser to see the result.
+### 4. Open the Application
+
+Open [http://localhost:9002](http://localhost:9002) in your browser to see the result.
 
 The main application code can be found in `src/app/page.tsx`.
