@@ -1,21 +1,61 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import type { QuizQuestion } from '@/lib/types';
+import { generateQuizForFinancialTopic } from '@/ai/flows/generate-quiz-for-financial-topic';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Check, X } from 'lucide-react';
+import { Check, X, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface QuizProps {
-  questions: QuizQuestion[];
+  topicTitle: string;
+  topicContent: string;
 }
 
-export function Quiz({ questions }: QuizProps) {
+export function Quiz({ topicTitle, topicContent }: QuizProps) {
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
+  const [isPending, startTransition] = useTransition();
+
+  const fetchQuiz = () => {
+    startTransition(async () => {
+      const quizData = await generateQuizForFinancialTopic({
+        topicTitle: topicTitle,
+        topicContent: topicContent,
+      });
+      setQuestions(quizData.questions as QuizQuestion[]);
+      setCurrentQuestionIndex(0);
+      setSelectedOption(null);
+      setIsAnswered(false);
+      setScore(0);
+    });
+  };
+
+  useEffect(() => {
+    fetchQuiz();
+  }, [topicTitle, topicContent]);
+
+  if (isPending && questions.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-3/4" />
+        <div className="space-y-3">
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return <p>Could not load quiz.</p>;
+  }
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -37,12 +77,10 @@ export function Quiz({ questions }: QuizProps) {
     setSelectedOption(null);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
   };
-
+  
   const handleRestart = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setScore(0);
+    setQuestions([]);
+    fetchQuiz();
   };
 
   if (currentQuestionIndex >= questions.length) {
@@ -50,7 +88,10 @@ export function Quiz({ questions }: QuizProps) {
       <div className="text-center space-y-4 p-8">
         <h3 className="text-2xl font-bold">Quiz Complete!</h3>
         <p className="text-lg">Your score: <span className="font-bold text-primary">{score} / {questions.length}</span></p>
-        <Button onClick={handleRestart}>Try Again</Button>
+        <Button onClick={handleRestart} disabled={isPending}>
+          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Try Again
+        </Button>
       </div>
     );
   }

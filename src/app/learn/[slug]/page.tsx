@@ -4,8 +4,6 @@ import { Quiz } from "@/components/learn/quiz";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import type { QuizQuestion } from "@/lib/types";
-import { generateQuizForFinancialTopic } from "@/ai/flows/generate-quiz-for-financial-topic";
 import { BookOpen, BrainCircuit, BarChart, ShieldCheck } from 'lucide-react';
 
 const modulesData: { [key: string]: any } = {
@@ -72,12 +70,6 @@ export default async function ModulePage({ params }: { params: { slug: string } 
     );
   }
 
-  const quizData = await generateQuizForFinancialTopic({
-    topicTitle: module.title,
-    topicContent: module.content,
-  });
-  const quizQuestions = quizData.questions;
-
   return (
     <div className="container mx-auto p-4 md:p-8">
       <Link href="/learn" className="inline-flex items-center gap-2 mb-6 text-sm font-medium text-muted-foreground hover:text-primary">
@@ -113,7 +105,7 @@ export default async function ModulePage({ params }: { params: { slug: string } 
             <CardTitle>Test Your Knowledge</CardTitle>
           </CardHeader>
           <CardContent>
-            <Quiz questions={quizQuestions as QuizQuestion[]} />
+            <Quiz topicTitle={module.title} topicContent={module.content} />
           </CardContent>
         </Card>
       </article>
