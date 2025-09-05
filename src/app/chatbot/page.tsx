@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Bot } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'AI Chatbot - Nivesh Saathi',
+  title: 'Nivesh Saathi - Your AI Investor Assistant',
   description: 'Get instant answers to your investment questions in your local language.',
 };
 
@@ -13,7 +13,7 @@ export default function ChatbotPage() {
        <header className="p-4 border-b text-center bg-background z-10">
         <div className="container mx-auto flex items-center justify-center gap-3">
             <Bot className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold text-primary">Investor AI Assistant</h1>
+            <h1 className="text-xl font-bold text-primary">Nivesh Saathi</h1>
         </div>
         <p className="text-sm text-muted-foreground">Ask me anything about investing!</p>
        </header>
