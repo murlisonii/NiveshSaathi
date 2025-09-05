@@ -558,6 +558,10 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const { isMobile, state } = useSidebar()
 
+    if (asChild) {
+      Comp = Slot
+    }
+
     const button = (
       <Comp
         ref={ref}
