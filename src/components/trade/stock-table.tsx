@@ -21,7 +21,7 @@ const mockStocks: Stock[] = [
 
 export function StockTable() {
   return (
-    <Card className="bg-white/50 dark:bg-black/50 border-transparent shadow-md">
+    <Card className="bg-card/50 dark:bg-black/50 border-transparent shadow-md">
       <CardHeader>
         <CardTitle>Market Watch (15-min delayed)</CardTitle>
       </CardHeader>
@@ -43,9 +43,7 @@ export function StockTable() {
                 </TableCell>
                 <TableCell>{stock.price.toFixed(2)}</TableCell>
                 <TableCell>
-                  <Badge variant={stock.change >= 0 ? "default" : "destructive"} className={`
-                    ${stock.change >= 0 ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}
-                  `}>
+                  <Badge variant={stock.change >= 0 ? "secondary" : "destructive"}>
                     {stock.change.toFixed(2)} ({stock.changePercent.toFixed(2)}%)
                   </Badge>
                 </TableCell>

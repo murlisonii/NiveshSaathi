@@ -1,7 +1,4 @@
 
-
-
-
 "use client";
 
 import {
@@ -23,7 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Slot } from "@radix-ui/react-slot"
+import { Slot } from "@radix-ui/react-slot";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -69,7 +66,7 @@ export default function AppSidebar() {
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <Link href={item.href}>
+              <Link href={item.href} legacyBehavior={false} passHref>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.href}
