@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { useFlow } from "@genkit-ai/next/client";
+import { useFlowState } from "@genkit-ai/next/react";
 import { aiChatbotForInvestorQueries } from '@/ai/flows/ai-chatbot-for-investor-queries';
 
 import { Input } from "@/components/ui/input";
@@ -19,22 +19,24 @@ interface Message {
 export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [flow, running] = useFlow(aiChatbotForInvestorQueries);
+  const [runFlow, running, , output] = useFlowState(aiChatbotForInvestorQueries);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (output) {
+      const botMessage: Message = { sender: 'bot', text: output.response };
+      setMessages(prev => [...prev, botMessage]);
+    }
+  }, [output]);
 
   const handleSend = async () => {
     if (input.trim() === '') return;
 
     const userMessage: Message = { sender: 'user', text: input };
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
-
-    const result = await flow({ query: input });
-    
-    if (result) {
-      const botMessage: Message = { sender: 'bot', text: result.response };
-      setMessages(prev => [...prev, botMessage]);
-    }
+    await runFlow({ query: currentInput });
   };
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export function ChatInterface() {
             viewport.scrollTop = viewport.scrollHeight;
         }
     }
-  }, [messages]);
+  }, [messages, running]);
 
   return (
     <div className="flex flex-col h-full">

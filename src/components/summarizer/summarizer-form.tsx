@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFlow } from "@genkit-ai/next/client";
+import { useFlowState } from "@genkit-ai/next/react";
 import { translateAndSummarize } from '@/ai/flows/translate-and-summarize-financial-texts';
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,12 +15,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 export function SummarizerForm() {
   const [text, setText] = useState('');
   const [language, setLanguage] = useState('Hindi');
-  const [flow, running, result, error] = useFlow(translateAndSummarize);
+  const [runFlow, running, , result, error] = useFlowState(translateAndSummarize);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text) return;
-    await flow({ text, language });
+    await runFlow({ text, language });
   };
 
   const languages = ["Hindi", "Tamil", "Bengali", "Marathi", "Telugu", "Gujarati"];
