@@ -1,8 +1,10 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import Link from "next/link";
-import { PortfolioStoreProvider, usePortfolioStore } from "@/hooks/use-portfolio-store";
+import { PortfolioStoreProvider, usePortfolioStore } from "@/hooks/use-portfolio-store.tsx";
 
 function PortfolioOverviewContent() {
   const { totalValue, dayChange, dayChangePercent, riskScore } = usePortfolioStore((state) => ({
