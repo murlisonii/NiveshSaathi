@@ -9,18 +9,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Search, FileText } from 'lucide-react';
+import { Loader2, Search, FileText, Image } from 'lucide-react';
 
 export function DocumentAnalyzer() {
     const [documentContent, setDocumentContent] = useState('');
+    const [imageDataUri, setImageDataUri] = useState('');
     const [userQuestion, setUserQuestion] = useState('');
     const [result, setResult] = useState<AnalyzeDocumentOutput | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const handleAnalysis = () => {
-        if (!documentContent || !userQuestion) {
-            setError("Please provide both document content and a question.");
+        if (!documentContent && !imageDataUri) {
+            setError("Please provide document content or an image data URI.");
+            return;
+        }
+         if (!userQuestion) {
+            setError("Please provide a question.");
             return;
         }
         setError(null);
@@ -28,7 +33,7 @@ export function DocumentAnalyzer() {
 
         startTransition(async () => {
             try {
-                const analysisResult = await analyzeDocument({ documentContent, userQuestion });
+                const analysisResult = await analyzeDocument({ documentContent, userQuestion, imageDataUri });
                 setResult(analysisResult);
             } catch (e: any) {
                 setError("Failed to analyze the document. Please try again.");
@@ -39,26 +44,41 @@ export function DocumentAnalyzer() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Document Q&A</CardTitle>
+                <CardTitle>Document Q&amp;A</CardTitle>
                 <CardDescription>
-                    Paste content from a financial report or article and ask a specific question about it.
+                    Paste content from a financial report or article, provide an image data URI of a chart, and ask a specific question about it.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="document-content">
                        <FileText className="inline-block mr-2 h-4 w-4" />
-                       Document Content
+                       Document Content (Optional)
                     </Label>
                     <Textarea
                         id="document-content"
                         placeholder="Paste the text from your PDF or research document here..."
                         value={documentContent}
                         onChange={(e) => setDocumentContent(e.target.value)}
-                        rows={12}
+                        rows={8}
                         disabled={isPending}
                     />
                 </div>
+                
+                 <div className="space-y-2">
+                    <Label htmlFor="image-data-uri">
+                       <Image className="inline-block mr-2 h-4 w-4" />
+                       Image Data URI (Optional)
+                    </Label>
+                    <Input
+                        id="image-data-uri"
+                        placeholder="Paste image data URI here (e.g., data:image/png;base64,...)"
+                        value={imageDataUri}
+                        onChange={(e) => setImageDataUri(e.target.value)}
+                        disabled={isPending}
+                    />
+                </div>
+
 
                 <div className="space-y-2">
                     <Label htmlFor="user-question">
@@ -75,7 +95,7 @@ export function DocumentAnalyzer() {
                 </div>
                 
                 <div className="text-center">
-                    <Button onClick={handleAnalysis} disabled={isPending || !documentContent || !userQuestion}>
+                    <Button onClick={handleAnalysis} disabled={isPending || (!documentContent && !imageDataUri) || !userQuestion}>
                         {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                         {isPending ? 'Analyzing...' : 'Analyze Document'}
                     </Button>
