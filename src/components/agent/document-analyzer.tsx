@@ -9,19 +9,42 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Search, FileText, Image } from 'lucide-react';
+import { Loader2, Search, FileText, Image, Upload } from 'lucide-react';
 
 export function DocumentAnalyzer() {
     const [documentContent, setDocumentContent] = useState('');
     const [imageDataUri, setImageDataUri] = useState('');
+    const [fileName, setFileName] = useState('');
     const [userQuestion, setUserQuestion] = useState('');
     const [result, setResult] = useState<AnalyzeDocumentOutput | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            setImageDataUri('');
+            setFileName('');
+            return;
+        }
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setImageDataUri(e.target?.result as string);
+                setFileName(file.name);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setError("Currently, only image files are supported. PDF support is coming soon.");
+            setImageDataUri('');
+            setFileName('');
+        }
+    };
+
     const handleAnalysis = () => {
         if (!documentContent && !imageDataUri) {
-            setError("Please provide document content or an image data URI.");
+            setError("Please provide document content or upload an image.");
             return;
         }
          if (!userQuestion) {
@@ -46,7 +69,7 @@ export function DocumentAnalyzer() {
             <CardHeader>
                 <CardTitle>Document Q&amp;A</CardTitle>
                 <CardDescription>
-                    Paste content from a financial report or article, provide an image data URI of a chart, and ask a specific question about it.
+                    Paste content from a financial report, upload a chart/graph, and ask a specific question about it.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -66,19 +89,28 @@ export function DocumentAnalyzer() {
                 </div>
                 
                  <div className="space-y-2">
-                    <Label htmlFor="image-data-uri">
+                    <Label htmlFor="file-upload">
                        <Image className="inline-block mr-2 h-4 w-4" />
-                       Image Data URI (Optional)
+                       Upload Image/Chart (Optional)
                     </Label>
-                    <Input
-                        id="image-data-uri"
-                        placeholder="Paste image data URI here (e.g., data:image/png;base64,...)"
-                        value={imageDataUri}
-                        onChange={(e) => setImageDataUri(e.target.value)}
-                        disabled={isPending}
-                    />
+                    <div className="flex items-center gap-2">
+                        <Button asChild variant="outline">
+                             <label htmlFor="file-upload" className="cursor-pointer">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Choose File
+                             </label>
+                        </Button>
+                        <Input
+                            id="file-upload"
+                            type="file"
+                            className="hidden"
+                            onChange={handleFileChange}
+                            accept="image/*" 
+                            disabled={isPending}
+                        />
+                        {fileName && <span className="text-sm text-muted-foreground">{fileName}</span>}
+                    </div>
                 </div>
-
 
                 <div className="space-y-2">
                     <Label htmlFor="user-question">
